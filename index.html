@@ -1,1 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anunciantes da Rádio</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: #ffffff; 
+            margin: 0; 
+            padding: 30px 15px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        header { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            border-bottom: 2px solid #f2f2f2; 
+            width: 100%; 
+            max-width: 800px; 
+            padding-bottom: 15px; 
+        }
+        header h1 { color: #333; font-size: 22px; text-transform: uppercase; margin: 0; }
+        
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+            gap: 20px; 
+            width: 100%; 
+            max-width: 1000px; 
+        }
+        
+        .card { 
+            background: #fff; 
+            border: 1px solid #eee; 
+            border-radius: 12px; 
+            padding: 15px; 
+            text-decoration: none; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            transition: 0.3s; 
+        }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        
+        .card img { 
+            width: 100%; 
+            height: 120px; 
+            object-fit: contain; 
+            margin-bottom: 10px; 
+        }
+        .card span { 
+            color: #444; 
+            font-weight: bold; 
+            font-size: 14px; 
+            text-align: center; 
+        }
+        
+        #loading { color: #999; margin-top: 50px; font-style: italic; }
+    </style>
+</head>
+<body>
 
+    <header><h1>Parceiros e Anunciantes</h1></header>
+    <div id="loading">Buscando anunciantes ativos...</div>
+    <div class="grid" id="grid"></div>
+
+    <script>
+        // Seu link /exec que você enviou
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbywJPriQ90I5NGnXOqAcYxOSJTu_nmKFYomiGCKJ2qTsCe0YQLWHqK29M26o59MaTvK-g/exec";
+
+        async function carregar() {
+            try {
+                // Adicionamos ?aba=Anunciantes para o Script saber qual aba ler
+                const response = await fetch(`${SCRIPT_URL}?aba=Anunciantes`);
+                const dados = await response.json();
+                
+                const grid = document.getElementById('grid');
+                document.getElementById('loading').style.display = 'none';
+                grid.innerHTML = "";
+
+                if (dados.length === 0) {
+                    document.getElementById('loading').style.display = 'block';
+                    document.getElementById('loading').innerText = "Nenhum anunciante ativo no momento.";
+                    return;
+                }
+
+                dados.forEach(item => {
+                    // Usando os nomes exatos que seu Script retorna: empresa, arte e link
+                    grid.innerHTML += `
+                        <a href="${item.link || '#'}" class="card" target="_blank">
+                            <img src="${item.arte}" alt="${item.empresa}">
+                            <span>${item.empresa}</span>
+                        </a>`;
+                });
+            } catch (err) {
+                document.getElementById('loading').innerText = "Erro ao carregar dados da planilha.";
+                console.error(err);
+            }
+        }
+        window.onload = carregar;
+    </script>
+</body>
+</html>
