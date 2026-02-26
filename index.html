@@ -19,78 +19,75 @@
         
         header { 
             text-align: center; 
-            padding: 25px 10px 10px 10px;
+            padding: 30px 10px;
             width: 100%; 
         }
 
         header h1 { 
             color: #333; 
-            font-size: 24px; 
+            font-size: 26px; 
             text-transform: uppercase; 
             font-weight: 800;
         }
 
-        /* BOTÃO DE CONTATO ACIMA DO FEED */
-        .contato-feed {
-            margin-bottom: 30px;
-            width: 90%;
-            max-width: 650px;
-        }
-
-        .btn-whats-contato {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #25d366; /* Verde WhatsApp */
-            color: white;
-            text-decoration: none;
-            padding: 15px;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 18px;
-            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
-            transition: transform 0.2s;
-        }
-
-        .btn-whats-contato i {
-            margin-right: 10px;
-            font-size: 22px;
-        }
-
-        .btn-whats-contato:active {
-            transform: scale(0.98);
-        }
-
-        /* Grid das artes do Feed */
         .grid { 
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 45px; 
+            gap: 60px; /* Espaço entre cada post do feed */
             width: 100%; 
             padding: 0 15px;
         }
         
-        .card { 
-            text-decoration: none !important;
-            display: block;
+        /* Container de cada Post (Arte + Botão) */
+        .feed-item {
             width: 100%;
-            max-width: 650px;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .card img { 
+        /* A Arte */
+        .feed-item img { 
             width: 100%; 
             height: auto;
             aspect-ratio: 15 / 20; 
             object-fit: cover; 
-            border-radius: 20px;
-            box-shadow: 0 15px 45px rgba(0,0,0,0.18);
+            border-radius: 15px 15px 0 0; /* Arredonda só em cima para encaixar no botão */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             display: block;
+        }
+
+        /* O Botão de Contato abaixo da arte */
+        .btn-contato {
+            width: 100%;
+            background: #25d366; /* Verde WhatsApp */
+            color: white;
+            text-decoration: none;
+            padding: 18px;
+            border-radius: 0 0 15px 15px; /* Arredonda só embaixo */
+            font-weight: bold;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.2);
+            transition: background 0.3s;
+        }
+
+        .btn-contato i {
+            margin-left: 10px;
+            font-size: 22px;
+        }
+
+        .btn-contato:hover {
+            background: #1ebe57;
         }
 
         #loading { 
             color: #999; 
-            margin-top: 50px; 
+            margin-top: 100px; 
             font-size: 18px;
             font-style: italic;
         }
@@ -102,17 +99,10 @@
         <h1>Painel de Destaque</h1>
     </header>
 
-    <div class="contato-feed">
-        <a href="https://wa.me/SEU_NUMERO_AQUI" id="link-contato-geral" class="btn-whats-contato" target="_blank">
-            <i class="fab fa-whatsapp"></i> Falar com a Rádio / Anuncie Aqui
-        </a>
-    </div>
-
     <div id="loading">Carregando feed...</div>
     <div class="grid" id="grid"></div>
 
     <script>
-        // SEU LINK DO SCRIPT
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5xrZQpn4MWW9uISAqSbSa-QNPtIrYO271FrpWZAJAtm10OYyHqoaFYZQz-zcbi-FNfg/exec";
 
         async function carregar() {
@@ -127,23 +117,23 @@
                 grid.innerHTML = "";
 
                 if (!dados || dados.length === 0) {
+                    loading.innerText = "Nenhum post ativo.";
                     loading.style.display = 'block';
-                    loading.innerText = "Nenhum post no feed agora.";
                     return;
                 }
 
-                // OPCIONAL: Se você quiser que o link do botão de cima venha da planilha, 
-                // podemos pegar o link do primeiro anunciante ou de uma célula específica.
-                // Por enquanto, ele usa o link que você colocar manualmente no HTML acima.
-
                 dados.forEach(item => {
                     if (item.arte && item.arte.trim() !== "") {
-                        const destino = (item.link && item.link.includes('http')) ? item.link : "#";
+                        // Pega o link da Coluna C da planilha
+                        const linkWhatsapp = (item.link && item.link.includes('http')) ? item.link : "#";
                         
                         grid.innerHTML += `
-                            <a href="${destino}" class="card" target="_blank">
-                                <img src="${item.arte}" alt="Feed Post">
-                            </a>`;
+                            <div class="feed-item">
+                                <img src="${item.arte}" alt="${item.empresa}">
+                                <a href="${linkWhatsapp}" class="btn-contato" target="_blank">
+                                    Link de Contato <i class="fab fa-whatsapp"></i>
+                                </a>
+                            </div>`;
                     }
                 });
             } catch (err) {
