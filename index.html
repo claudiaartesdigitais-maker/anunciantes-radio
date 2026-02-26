@@ -3,102 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Painel de Destaque - Ajustado</title>
+    <title>Painel de Destaque - Rádio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Reset e Travas de Toque para não flutuar */
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent;
-            touch-action: pan-y; /* FORÇA O DEDO A ROLAR A PÁGINA, NÃO A IMAGEM */
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
             font-family: 'Segoe UI', sans-serif; 
             background: #ffffff; 
             display: flex; 
             flex-direction: column; 
-            align-items: center; 
-            overflow-x: hidden;
-            width: 100%;
-        }
-        
-        header { 
-            text-align: center; 
-            padding: 25px 10px; 
-            width: 100%;
-            background: #fff;
-        }
-
-        header h1 { color: #333; font-size: 24px; text-transform: uppercase; font-weight: 800; }
-
-        /* GRID CENTRALIZADO */
-        .grid { 
-            display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 40px; 
-            width: 100%; 
-            max-width: 600px; /* Limita a largura para não esticar demais */
-            padding: 10px 15px 80px 15px;
-            margin: 0 auto;
+            overflow-x: hidden;
         }
         
-        /* ITEM DO FEED */
+        header { text-align: center; padding: 20px 10px; width: 100%; }
+        header h1 { color: #333; font-size: 22px; text-transform: uppercase; font-weight: 800; }
+
+        .instrucao {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* CARROSSEL HORIZONTAL (ESTILO FEED) */
+        .carrossel { 
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            width: 100%; 
+            gap: 20px;
+            padding: 0 20px 40px 20px;
+            scrollbar-width: none;
+        }
+        .carrossel::-webkit-scrollbar { display: none; }
+
         .feed-item {
-            width: 100%;
+            flex: 0 0 85%;
+            max-width: 400px;
+            scroll-snap-align: center;
             display: flex;
             flex-direction: column;
             text-decoration: none;
-            align-items: center;
+            border-radius: 20px;
+            overflow: hidden; /* Garante que imagem e botão fiquem unidos */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
         }
 
-        /* A ARTE - SEM CORTES */
-        .arte-container { 
+        /* IMAGEM ESTICADA E TRAVADA */
+        .feed-item img { 
             width: 100%; 
-            aspect-ratio: 15 / 25; /* Mantém a altura que você pediu */
-            background-color: #f9f9f9; /* Fundo leve caso a imagem seja menor */
-            background-size: contain; /* GARANTE QUE A IMAGEM APAREÇA INTEIRA */
-            background-position: center; /* CENTRALIZA A IMAGEM NO ESPAÇO */
-            background-repeat: no-repeat;
-            border-radius: 15px 15px 0 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            
-            /* Impede a imagem de ser "agarrada" pelo dedo */
-            user-select: none;
-            -webkit-user-drag: none;
+            height: auto;
+            aspect-ratio: 15 / 23; /* Altura vertical boa */
+            object-fit: cover;
+            display: block;
+            /* TRAVAS CONTRA O DESLIZE/FLUTUAÇÃO */
             pointer-events: none; 
+            -webkit-user-drag: none;
+            user-select: none;
         }
 
-        /* BOTÃO DE CONTATO */
         .btn-contato {
             width: 100%;
             background: #25d366; 
             color: white;
-            padding: 20px;
-            border-radius: 0 0 15px 15px;
+            padding: 18px;
             font-weight: bold;
             font-size: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
+            border: none;
         }
 
-        .btn-contato i { margin-left: 10px; font-size: 24px; }
+        .btn-contato i { margin-left: 10px; font-size: 22px; }
 
-        #loading { color: #999; margin-top: 50px; text-align: center; font-size: 18px; }
+        #loading { color: #999; margin-top: 50px; }
     </style>
 </head>
 <body>
 
     <header><h1>Painel de Destaque</h1></header>
 
-    <div id="loading">Carregando feed...</div>
-    <div id="grid" class="grid"></div>
+    <div class="instrucao">
+        <i class="fas fa-hand-pointer"></i> Arraste para o lado para ver mais
+    </div>
+
+    <div id="loading">Carregando...</div>
+    <div id="grid" class="carrossel"></div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5xrZQpn4MWW9uISAqSbSa-QNPtIrYO271FrpWZAJAtm10OYyHqoaFYZQz-zcbi-FNfg/exec";
@@ -117,12 +112,12 @@
                         const linkWhatsapp = (item.link && item.link.includes('http')) ? item.link : "#";
                         
                         grid.innerHTML += `
-                            <a href="${linkWhatsapp}" class="feed-item" target="_blank">
-                                <div class="arte-container" style="background-image: url('${item.arte}');"></div>
-                                <div class="btn-contato">
+                            <div class="feed-item">
+                                <img src="${item.arte}" alt="Post">
+                                <a href="${linkWhatsapp}" class="btn-contato" target="_blank">
                                     Link de Contato <i class="fab fa-whatsapp"></i>
-                                </div>
-                            </a>`;
+                                </a>
+                            </div>`;
                     }
                 });
             } catch (err) {
