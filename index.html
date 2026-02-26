@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Painel de Destaque - Feed</title>
+    <title>Painel de Destaque - Carrossel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -14,83 +14,90 @@
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            padding-bottom: 60px;
+            overflow: hidden; /* Impede rolagem da página toda */
+            height: 100vh;
         }
         
-        header { text-align: center; padding: 30px 10px; width: 100%; }
-        header h1 { color: #333; font-size: 26px; text-transform: uppercase; font-weight: 800; }
+        header { text-align: center; padding: 20px 10px; width: 100%; }
+        header h1 { color: #333; font-size: 22px; text-transform: uppercase; font-weight: 800; }
 
-        .grid { 
+        .instrucao {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 50px; 
+            gap: 8px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateX(0);}
+            40% {transform: translateX(-5px);}
+            60% {transform: translateX(3px);}
+        }
+
+        /* CONTAINER DO CARROSSEL (HORIZONTAL) */
+        .carrossel { 
+            display: flex;
+            overflow-x: auto; /* Permite arrastar pro lado */
+            scroll-snap-type: x mandatory; /* Faz "parar" certinho na imagem */
             width: 100%; 
-            padding: 0 15px;
+            gap: 20px;
+            padding: 0 20px 40px 20px;
+            scrollbar-width: none; /* Esconde barra no Firefox */
         }
         
-        /* Container do Post */
+        .carrossel::-webkit-scrollbar { display: none; } /* Esconde barra no Chrome/Safari */
+
         .feed-item {
-            width: 100%;
-            max-width: 600px;
+            flex: 0 0 85%; /* Cada card ocupa 85% da largura da tela */
+            max-width: 400px;
+            scroll-snap-align: center;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            position: relative; /* Importante para a camada invisível */
+            text-decoration: none;
         }
 
-        /* Camada Invisível de Clique sobre a imagem */
-        .click-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: calc(100% - 60px); /* Cobre a imagem, mas deixa o botão livre */
-            z-index: 10;
-            cursor: pointer;
-        }
-
-        /* Estilo da Arte */
-        .feed-item img { 
+        /* ARTE MAIS ESTICADA (15x25) */
+        .arte-container { 
             width: 100%; 
-            height: auto;
-            aspect-ratio: 15 / 20; 
-            object-fit: cover; 
-            border-radius: 15px 15px 0 0;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            display: block;
-            /* Travas para não deslizar */
-            user-select: none;
-            -webkit-user-drag: none;
-            pointer-events: none; 
+            aspect-ratio: 15 / 25; 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
 
-        /* Botão de Contato */
         .btn-contato {
             width: 100%;
             background: #25d366; 
             color: white;
-            text-decoration: none;
             padding: 18px;
-            border-radius: 0 0 15px 15px;
+            border-radius: 0 0 20px 20px;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 20; /* Fica acima de tudo */
         }
 
-        .btn-contato i { margin-left: 10px; font-size: 22px; }
+        .btn-contato i { margin-left: 10px; font-size: 20px; }
 
-        #loading { color: #999; margin-top: 100px; font-size: 18px; }
+        #loading { color: #999; margin-top: 100px; }
     </style>
 </head>
 <body>
 
     <header><h1>Painel de Destaque</h1></header>
-    <div id="loading">Carregando feed...</div>
-    <div id="grid" class="grid"></div>
+
+    <div class="instrucao">
+        <i class="fas fa-hand-pointer"></i> Arraste para o lado para ver mais
+    </div>
+
+    <div id="loading">Carregando...</div>
+    <div id="grid" class="carrossel"></div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5xrZQpn4MWW9uISAqSbSa-QNPtIrYO271FrpWZAJAtm10OYyHqoaFYZQz-zcbi-FNfg/exec";
@@ -109,13 +116,12 @@
                         const linkWhatsapp = (item.link && item.link.includes('http')) ? item.link : "#";
                         
                         grid.innerHTML += `
-                            <div class="feed-item">
-                                <a href="${linkWhatsapp}" class="click-layer" target="_blank"></a>
-                                <img src="${item.arte}" alt="Post">
-                                <a href="${linkWhatsapp}" class="btn-contato" target="_blank">
+                            <a href="${linkWhatsapp}" class="feed-item" target="_blank">
+                                <div class="arte-container" style="background-image: url('${item.arte}');"></div>
+                                <div class="btn-contato">
                                     Link de Contato <i class="fab fa-whatsapp"></i>
-                                </a>
-                            </div>`;
+                                </div>
+                            </a>`;
                     }
                 });
             } catch (err) {
