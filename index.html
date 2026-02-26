@@ -5,15 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel de Destaque</title>
     <style>
+        /* Reset total para não sobrar nenhum link estranho */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body { 
             font-family: 'Segoe UI', sans-serif; 
             background: #ffffff; 
-            margin: 0; 
-            padding: 0; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            overflow-x: hidden;
+            padding-bottom: 50px;
         }
         
         header { 
@@ -24,51 +25,45 @@
 
         header h1 { 
             color: #333; 
-            font-size: 28px; 
+            font-size: 26px; 
             text-transform: uppercase; 
-            margin: 0;
             font-weight: 800;
         }
         
-        /* Container centralizado e largo */
         .grid { 
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 40px; 
             width: 100%; 
-            max-width: 900px; /* Aumentado para permitir artes maiores */
-            padding: 20px;
-            box-sizing: border-box;
+            max-width: 800px; 
+            padding: 10px;
         }
         
+        /* O container do link não terá texto, apenas a imagem */
         .card { 
-            text-decoration: none; 
-            display: flex; 
-            justify-content: center;
-            width: 100%;
-            transition: transform 0.3s; 
+            text-decoration: none !important;
+            outline: none;
+            border: none;
+            display: block;
+            width: 95%;
+            max-width: 600px;
         }
 
-        /* Proporção 15x20 Vertical e Tamanho Ampliado */
         .card img { 
             width: 100%; 
-            max-width: 600px; /* Arte agora bem grande */
             height: auto;
             aspect-ratio: 15 / 20; 
             object-fit: cover; 
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); /* Sombra mais forte para destaque */
+            border-radius: 15px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+            display: block; /* Remove espaços vazios embaixo da imagem */
         }
 
-        .card:hover { transform: scale(1.03); }
-        
         #loading { 
             color: #999; 
             margin-top: 100px; 
-            font-style: italic; 
-            font-size: 20px; 
-            text-align: center;
+            font-size: 18px; 
         }
     </style>
 </head>
@@ -78,7 +73,7 @@
         <h1>Painel de Destaque</h1>
     </header>
 
-    <div id="loading">Carregando painel...</div>
+    <div id="loading">Carregando...</div>
     <div class="grid" id="grid"></div>
 
     <script>
@@ -86,23 +81,23 @@
 
         async function carregar() {
             try {
-                const response = await fetch(`${SCRIPT_URL}?aba=Anunciantes`);
+                // Adicionamos um número aleatório no final para evitar cache do navegador
+                const response = await fetch(`${SCRIPT_URL}?aba=Anunciantes&v=${Math.random()}`);
                 const dados = await response.json();
                 
                 const grid = document.getElementById('grid');
                 document.getElementById('loading').style.display = 'none';
                 grid.innerHTML = "";
 
-                if (dados.length === 0) {
-                    document.getElementById('loading').innerText = "Nenhum destaque ativo.";
-                    document.getElementById('loading').style.display = 'block';
-                    return;
-                }
-
                 dados.forEach(item => {
+                    // Verificamos se existe link. Se não existir, o link vira '#' (nada)
+                    const linkDestino = item.link && item.link.trim() !== "" ? item.link : "#";
+                    
+                    // Aqui montamos APENAS a tag de link e a imagem dentro. 
+                    // Removida qualquer menção a item.empresa fora do ALT
                     grid.innerHTML += `
-                        <a href="${item.link || '#'}" class="card" target="_blank">
-                            <img src="${item.arte}" alt="${item.empresa}">
+                        <a href="${linkDestino}" class="card" target="_blank">
+                            <img src="${item.arte}" alt="Anunciante">
                         </a>`;
                 });
             } catch (err) {
