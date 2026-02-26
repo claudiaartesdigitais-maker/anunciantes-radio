@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Destaque</title>
+    <title>Painel de Destaque - Feed</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Reset para limpar qualquer resíduo visual */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
@@ -14,13 +14,12 @@
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            padding: 20px 0 60px 0;
-            overflow-x: hidden;
+            padding-bottom: 60px;
         }
         
         header { 
             text-align: center; 
-            padding: 20px 10px 40px 10px;
+            padding: 25px 10px 10px 10px;
             width: 100%; 
         }
 
@@ -29,47 +28,69 @@
             font-size: 24px; 
             text-transform: uppercase; 
             font-weight: 800;
-            letter-spacing: 1px;
         }
-        
-        /* Container das artes - Uma embaixo da outra e centralizadas */
+
+        /* BOTÃO DE CONTATO ACIMA DO FEED */
+        .contato-feed {
+            margin-bottom: 30px;
+            width: 90%;
+            max-width: 650px;
+        }
+
+        .btn-whats-contato {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #25d366; /* Verde WhatsApp */
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .btn-whats-contato i {
+            margin-right: 10px;
+            font-size: 22px;
+        }
+
+        .btn-whats-contato:active {
+            transform: scale(0.98);
+        }
+
+        /* Grid das artes do Feed */
         .grid { 
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 50px; 
+            gap: 45px; 
             width: 100%; 
             padding: 0 15px;
         }
         
-        /* O link ocupa quase toda a largura para a imagem ficar gigante */
         .card { 
             text-decoration: none !important;
             display: block;
             width: 100%;
-            max-width: 650px; /* Aumentado para destaque total */
-            outline: none;
+            max-width: 650px;
         }
 
-        /* Proporção 15x20 Vertical */
         .card img { 
             width: 100%; 
             height: auto;
             aspect-ratio: 15 / 20; 
             object-fit: cover; 
-            border-radius: 20px; /* Bordas mais arredondadas para um visual moderno */
-            box-shadow: 0 15px 45px rgba(0,0,0,0.2); /* Sombra marcante */
+            border-radius: 20px;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.18);
             display: block;
-            transition: transform 0.3s;
-        }
-
-        .card:hover img {
-            transform: scale(1.02);
         }
 
         #loading { 
             color: #999; 
-            margin-top: 100px; 
+            margin-top: 50px; 
             font-size: 18px;
             font-style: italic;
         }
@@ -81,16 +102,21 @@
         <h1>Painel de Destaque</h1>
     </header>
 
-    <div id="loading">Carregando painel...</div>
+    <div class="contato-feed">
+        <a href="https://wa.me/SEU_NUMERO_AQUI" id="link-contato-geral" class="btn-whats-contato" target="_blank">
+            <i class="fab fa-whatsapp"></i> Falar com a Rádio / Anuncie Aqui
+        </a>
+    </div>
+
+    <div id="loading">Carregando feed...</div>
     <div class="grid" id="grid"></div>
 
     <script>
-        // SEU LINK NOVO ATUALIZADO
+        // SEU LINK DO SCRIPT
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5xrZQpn4MWW9uISAqSbSa-QNPtIrYO271FrpWZAJAtm10OYyHqoaFYZQz-zcbi-FNfg/exec";
 
         async function carregar() {
             try {
-                // Buscamos os dados com um parâmetro de tempo para evitar cache
                 const response = await fetch(`${SCRIPT_URL}?aba=Anunciantes&t=${Date.now()}`);
                 const dados = await response.json();
                 
@@ -102,25 +128,26 @@
 
                 if (!dados || dados.length === 0) {
                     loading.style.display = 'block';
-                    loading.innerText = "Nenhum anúncio ativo no momento.";
+                    loading.innerText = "Nenhum post no feed agora.";
                     return;
                 }
 
+                // OPCIONAL: Se você quiser que o link do botão de cima venha da planilha, 
+                // podemos pegar o link do primeiro anunciante ou de uma célula específica.
+                // Por enquanto, ele usa o link que você colocar manualmente no HTML acima.
+
                 dados.forEach(item => {
-                    // Só adiciona se houver link da imagem (arte)
                     if (item.arte && item.arte.trim() !== "") {
-                        // Garante que o link seja válido, senão usa '#'
                         const destino = (item.link && item.link.includes('http')) ? item.link : "#";
                         
                         grid.innerHTML += `
                             <a href="${destino}" class="card" target="_blank">
-                                <img src="${item.arte}" alt="Destaque">
+                                <img src="${item.arte}" alt="Feed Post">
                             </a>`;
                     }
                 });
             } catch (err) {
-                document.getElementById('loading').innerText = "Erro ao carregar o painel.";
-                console.error(err);
+                document.getElementById('loading').innerText = "Erro ao carregar o feed.";
             }
         }
         window.onload = carregar;
