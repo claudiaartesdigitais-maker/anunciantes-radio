@@ -6,13 +6,7 @@
     <title>Painel de Destaque - Feed</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Reset e Travas de Toque */
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
             font-family: 'Segoe UI', sans-serif; 
@@ -21,50 +15,42 @@
             flex-direction: column; 
             align-items: center; 
             padding-bottom: 60px;
-            overflow-x: hidden;
         }
         
-        header { 
-            text-align: center; 
-            padding: 30px 10px;
-            width: 100%; 
-        }
-
-        header h1 { 
-            color: #333; 
-            font-size: 26px; 
-            text-transform: uppercase; 
-            font-weight: 800;
-        }
+        header { text-align: center; padding: 30px 10px; width: 100%; }
+        header h1 { color: #333; font-size: 26px; text-transform: uppercase; font-weight: 800; }
 
         .grid { 
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 60px; 
+            gap: 50px; 
             width: 100%; 
             padding: 0 15px;
         }
         
-        /* Container de cada Post */
+        /* Container do Post */
         .feed-item {
             width: 100%;
             max-width: 600px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            position: relative;
+            position: relative; /* Importante para a camada invisível */
         }
 
-        /* Link que envolve a imagem */
-        .link-arte {
+        /* Camada Invisível de Clique sobre a imagem */
+        .click-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            display: block;
-            text-decoration: none;
-            outline: none;
+            height: calc(100% - 60px); /* Cobre a imagem, mas deixa o botão livre */
+            z-index: 10;
+            cursor: pointer;
         }
 
-        /* Estilo da Arte com Travas de Deslize */
+        /* Estilo da Arte */
         .feed-item img { 
             width: 100%; 
             height: auto;
@@ -73,18 +59,70 @@
             border-radius: 15px 15px 0 0;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             display: block;
-
-            /* TRAVAS DE SEGURANÇA */
-            pointer-events: none; /* O toque passa através da imagem para o link */
+            /* Travas para não deslizar */
             user-select: none;
             -webkit-user-drag: none;
-            -webkit-touch-callout: none; /* Impede menu de salvar imagem */
+            pointer-events: none; 
         }
 
-        /* O Botão de Contato */
+        /* Botão de Contato */
         .btn-contato {
             width: 100%;
             background: #25d366; 
             color: white;
             text-decoration: none;
-            padding:
+            padding: 18px;
+            border-radius: 0 0 15px 15px;
+            font-weight: bold;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20; /* Fica acima de tudo */
+        }
+
+        .btn-contato i { margin-left: 10px; font-size: 22px; }
+
+        #loading { color: #999; margin-top: 100px; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+    <header><h1>Painel de Destaque</h1></header>
+    <div id="loading">Carregando feed...</div>
+    <div id="grid" class="grid"></div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5xrZQpn4MWW9uISAqSbSa-QNPtIrYO271FrpWZAJAtm10OYyHqoaFYZQz-zcbi-FNfg/exec";
+
+        async function carregar() {
+            try {
+                const response = await fetch(`${SCRIPT_URL}?aba=Anunciantes&t=${Date.now()}`);
+                const dados = await response.json();
+                
+                const grid = document.getElementById('grid');
+                document.getElementById('loading').style.display = 'none';
+                grid.innerHTML = "";
+
+                dados.forEach(item => {
+                    if (item.arte && item.arte.trim() !== "") {
+                        const linkWhatsapp = (item.link && item.link.includes('http')) ? item.link : "#";
+                        
+                        grid.innerHTML += `
+                            <div class="feed-item">
+                                <a href="${linkWhatsapp}" class="click-layer" target="_blank"></a>
+                                <img src="${item.arte}" alt="Post">
+                                <a href="${linkWhatsapp}" class="btn-contato" target="_blank">
+                                    Link de Contato <i class="fab fa-whatsapp"></i>
+                                </a>
+                            </div>`;
+                    }
+                });
+            } catch (err) {
+                document.getElementById('loading').innerText = "Erro ao carregar.";
+            }
+        }
+        window.onload = carregar;
+    </script>
+</body>
+</html>
