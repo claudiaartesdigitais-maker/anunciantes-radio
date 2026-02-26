@@ -2,11 +2,17 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Painel de Destaque - Feed</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* Reset e Travas de Toque */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+        }
         
         body { 
             font-family: 'Segoe UI', sans-serif; 
@@ -15,6 +21,7 @@
             flex-direction: column; 
             align-items: center; 
             padding-bottom: 60px;
+            overflow-x: hidden;
         }
         
         header { 
@@ -34,113 +41,50 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 60px; /* Espaço entre cada post do feed */
+            gap: 60px; 
             width: 100%; 
             padding: 0 15px;
         }
         
-        /* Container de cada Post (Arte + Botão) */
+        /* Container de cada Post */
         .feed-item {
             width: 100%;
             max-width: 600px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
         }
 
-        /* A Arte */
+        /* Link que envolve a imagem */
+        .link-arte {
+            width: 100%;
+            display: block;
+            text-decoration: none;
+            outline: none;
+        }
+
+        /* Estilo da Arte com Travas de Deslize */
         .feed-item img { 
             width: 100%; 
             height: auto;
             aspect-ratio: 15 / 20; 
             object-fit: cover; 
-            border-radius: 15px 15px 0 0; /* Arredonda só em cima para encaixar no botão */
+            border-radius: 15px 15px 0 0;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             display: block;
+
+            /* TRAVAS DE SEGURANÇA */
+            pointer-events: none; /* O toque passa através da imagem para o link */
+            user-select: none;
+            -webkit-user-drag: none;
+            -webkit-touch-callout: none; /* Impede menu de salvar imagem */
         }
 
-        /* O Botão de Contato abaixo da arte */
+        /* O Botão de Contato */
         .btn-contato {
             width: 100%;
-            background: #25d366; /* Verde WhatsApp */
+            background: #25d366; 
             color: white;
             text-decoration: none;
-            padding: 18px;
-            border-radius: 0 0 15px 15px; /* Arredonda só embaixo */
-            font-weight: bold;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.2);
-            transition: background 0.3s;
-        }
-
-        .btn-contato i {
-            margin-left: 10px;
-            font-size: 22px;
-        }
-
-        .btn-contato:hover {
-            background: #1ebe57;
-        }
-
-        #loading { 
-            color: #999; 
-            margin-top: 100px; 
-            font-size: 18px;
-            font-style: italic;
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <h1>Painel de Destaque</h1>
-    </header>
-
-    <div id="loading">Carregando feed...</div>
-    <div class="grid" id="grid"></div>
-
-    <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5xrZQpn4MWW9uISAqSbSa-QNPtIrYO271FrpWZAJAtm10OYyHqoaFYZQz-zcbi-FNfg/exec";
-
-        async function carregar() {
-            try {
-                const response = await fetch(`${SCRIPT_URL}?aba=Anunciantes&t=${Date.now()}`);
-                const dados = await response.json();
-                
-                const grid = document.getElementById('grid');
-                const loading = document.getElementById('loading');
-                
-                loading.style.display = 'none';
-                grid.innerHTML = "";
-
-                if (!dados || dados.length === 0) {
-                    loading.innerText = "Nenhum post ativo.";
-                    loading.style.display = 'block';
-                    return;
-                }
-
-                dados.forEach(item => {
-                    if (item.arte && item.arte.trim() !== "") {
-                        // Pega o link da Coluna C da planilha
-                        const linkWhatsapp = (item.link && item.link.includes('http')) ? item.link : "#";
-                        
-                        grid.innerHTML += `
-                            <div class="feed-item">
-                                <img src="${item.arte}" alt="${item.empresa}">
-                                <a href="${linkWhatsapp}" class="btn-contato" target="_blank">
-                                    Link de Contato <i class="fab fa-whatsapp"></i>
-                                </a>
-                            </div>`;
-                    }
-                });
-            } catch (err) {
-                document.getElementById('loading').innerText = "Erro ao carregar o feed.";
-            }
-        }
-        window.onload = carregar;
-    </script>
-</body>
-</html>
+            padding:
