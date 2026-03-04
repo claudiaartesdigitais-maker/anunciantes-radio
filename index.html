@@ -15,52 +15,41 @@
             flex-direction: column; 
             align-items: center;
             overflow-x: hidden;
+            padding-bottom: 50px;
         }
         
-        header { text-align: center; padding: 20px 10px; width: 100%; }
-        header h1 { color: #333; font-size: 22px; text-transform: uppercase; font-weight: 800; }
+        header { text-align: center; padding: 25px 10px; width: 100%; border-bottom: 1px solid #f0f0f0; margin-bottom: 20px; }
+        header h1 { color: #001a33; font-size: 20px; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; }
 
-        .instrucao {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 15px;
+        /* FEED VERTICAL (UM EMBAIXO DO OUTRO) */
+        .feed-vertical { 
             display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* CARROSSEL HORIZONTAL (ESTILO FEED) */
-        .carrossel { 
-            display: flex;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
+            flex-direction: column; /* Força a descida vertical */
             width: 100%; 
-            gap: 20px;
-            padding: 0 20px 40px 20px;
-            scrollbar-width: none;
+            max-width: 500px; /* Limite para não esticar demais em tablets */
+            gap: 35px; /* Espaço elegante entre os anúncios */
+            padding: 0 15px;
         }
-        .carrossel::-webkit-scrollbar { display: none; }
 
         .feed-item {
-            flex: 0 0 85%;
-            max-width: 400px;
-            scroll-snap-align: center;
+            width: 100%;
             display: flex;
             flex-direction: column;
             text-decoration: none;
-            border-radius: 20px;
-            overflow: hidden; /* Garante que imagem e botão fiquem unidos */
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border: 1px solid #eee;
+            transition: transform 0.2s;
         }
 
-        /* IMAGEM ESTICADA E TRAVADA */
+        /* Efeito de Clique */
+        .feed-item:active { transform: scale(0.98); }
+
         .feed-item img { 
             width: 100%; 
             height: auto;
-            aspect-ratio: 15 / 23; /* Altura vertical boa */
-            object-fit: cover;
             display: block;
-            /* TRAVAS CONTRA O DESLIZE/FLUTUAÇÃO */
             pointer-events: none; 
             -webkit-user-drag: none;
             user-select: none;
@@ -70,30 +59,29 @@
             width: 100%;
             background: #25d366; 
             color: white;
-            padding: 18px;
+            padding: 16px;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             border: none;
+            text-decoration: none;
+            text-transform: uppercase;
         }
 
-        .btn-contato i { margin-left: 10px; font-size: 22px; }
+        .btn-contato i { margin-left: 10px; font-size: 20px; }
 
-        #loading { color: #999; margin-top: 50px; }
+        #loading { color: #999; margin-top: 50px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <header><h1>Painel de Destaque</h1></header>
+    <header><h1>Painel de Anunciantes</h1></header>
 
-    <div class="instrucao">
-        <i class="fas fa-hand-pointer"></i> Arraste para o lado para ver mais
-    </div>
-
-    <div id="loading">Carregando...</div>
-    <div id="grid" class="carrossel"></div>
+    <div id="loading">Carregando oportunidades...</div>
+    
+    <div id="feed-lista" class="feed-vertical"></div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5xrZQpn4MWW9uISAqSbSa-QNPtIrYO271FrpWZAJAtm10OYyHqoaFYZQz-zcbi-FNfg/exec";
@@ -103,25 +91,27 @@
                 const response = await fetch(`${SCRIPT_URL}?aba=Anunciantes&t=${Date.now()}`);
                 const dados = await response.json();
                 
-                const grid = document.getElementById('grid');
+                const lista = document.getElementById('feed-lista');
                 document.getElementById('loading').style.display = 'none';
-                grid.innerHTML = "";
+                lista.innerHTML = "";
 
                 dados.forEach(item => {
                     if (item.arte && item.arte.trim() !== "") {
+                        // Se o link for WhatsApp, usamos o ícone do Whats, se não, um ícone de link
                         const linkWhatsapp = (item.link && item.link.includes('http')) ? item.link : "#";
+                        const iconClass = linkWhatsapp.includes('wa.me') || linkWhatsapp.includes('api.whatsapp') ? 'fab fa-whatsapp' : 'fas fa-external-link-alt';
                         
-                        grid.innerHTML += `
+                        lista.innerHTML += `
                             <div class="feed-item">
-                                <img src="${item.arte}" alt="Post">
+                                <img src="${item.arte}" alt="Anúncio">
                                 <a href="${linkWhatsapp}" class="btn-contato" target="_blank">
-                                    Link de Contato <i class="fab fa-whatsapp"></i>
+                                    Falar com o Anunciante <i class="${iconClass}"></i>
                                 </a>
                             </div>`;
                     }
                 });
             } catch (err) {
-                document.getElementById('loading').innerText = "Erro ao carregar.";
+                document.getElementById('loading').innerText = "Erro ao carregar os anúncios.";
             }
         }
         window.onload = carregar;
