@@ -6,73 +6,41 @@
     <title>Anunciantes - Rádio TV Nova Cotia</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Reset e Travas de Scroll */
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        html, body { 
-            width: 100%;
-            height: 100%;
+        body { 
             background: #ffffff;
             font-family: 'Segoe UI', sans-serif;
             overflow-x: hidden;
-            /* Melhora o deslize no mobile */
-            -webkit-overflow-scrolling: touch;
+            -webkit-overflow-scrolling: touch; /* Scroll suave no iOS */
         }
 
         header { 
-            text-align: center; 
-            padding: 20px 10px; 
-            width: 100%; 
-            background: #001a33;
-            margin-bottom: 20px;
+            text-align: center; padding: 20px 10px; background: #001a33; margin-bottom: 25px;
         }
-        header h1 { 
-            color: #ffffff; 
-            font-size: 22px; 
-            text-transform: uppercase; 
-            font-weight: 800; 
-            letter-spacing: 2px; 
-        }
+        header h1 { color: #ffffff; font-size: 20px; text-transform: uppercase; letter-spacing: 1px; }
 
         .feed-vertical { 
-            display: block; 
-            width: 100%; 
-            max-width: 480px; 
-            margin: 0 auto;
-            padding: 0 15px 80px 15px;
+            display: block; width: 100%; max-width: 480px; margin: 0 auto; padding: 0 15px 50px 15px;
         }
 
         .feed-item {
             width: 100%;
             margin-bottom: 30px;
-            display: flex;
-            flex-direction: column;
             border-radius: 12px;
-            overflow: hidden;
+            overflow: hidden; /* Isso mantém a imagem presa dentro do card */
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            border: 1px solid #f0f0f0;
             background: #fff;
-            /* Trava o movimento apenas para o eixo vertical (Y) */
+            /* A SOLUÇÃO: Trava o toque apenas para rolagem vertical */
             touch-action: pan-y;
         }
 
-        /* TRAVA DA IMAGEM: Impede que ela se mova sozinha */
         .feed-item img { 
             width: 100%; 
-            height: auto;
             display: block;
-            /* Impede o navegador de "selecionar" ou "arrastar" a imagem */
-            pointer-events: none; 
+            pointer-events: none; /* Impede que o toque "pegue" a imagem */
             -webkit-user-drag: none;
             user-select: none;
-            -moz-user-select: none;
-            -webkit-user-select: none;
-            -ms-user-select: none;
         }
 
         .btn-contato {
@@ -81,66 +49,39 @@
             color: white;
             padding: 18px;
             font-weight: bold;
-            font-size: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
             text-decoration: none;
             text-transform: uppercase;
-            border: none;
-            /* Garante que o botão seja clicável mesmo com a imagem travada */
-            pointer-events: auto;
         }
-
-        .btn-contato i { margin-left: 10px; font-size: 20px; }
-
-        #loading { text-align: center; color: #999; padding: 40px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <header><h1>Anunciantes</h1></header>
-
-    <div id="loading">Carregando anúncios...</div>
-    
     <div id="feed-lista" class="feed-vertical"></div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5xrZQpn4MWW9uISAqSbSa-QNPtIrYO271FrpWZAJAtm10OYyHqoaFYZQz-zcbi-FNfg/exec";
 
         async function carregar() {
-            try {
-                const response = await fetch(`${SCRIPT_URL}?aba=Anunciantes&t=${new Date().getTime()}`);
-                const dados = await response.json();
-                
-                const lista = document.getElementById('feed-lista');
-                const loading = document.getElementById('loading');
-                if(loading) loading.style.display = 'none';
-                
-                lista.innerHTML = "";
-
-                dados.forEach(item => {
-                    if (item.arte && item.arte.trim() !== "") {
-                        const linkDestino = (item.link && item.link.includes('http')) ? item.link : "#";
-                        const iconClass = linkDestino.includes('wa.me') || linkDestino.includes('api.whatsapp') ? 'fab fa-whatsapp' : 'fas fa-external-link-alt';
-                        
-                        // Criando o elemento com travas de arrasto nativo
-                        const itemDiv = document.createElement('div');
-                        itemDiv.className = 'feed-item';
-                        itemDiv.innerHTML = `
-                            <img src="${item.arte}" alt="Anúncio" draggable="false">
-                            <a href="${linkDestino}" class="btn-contato" target="_blank">
-                                Falar com o Anunciante <i class="${iconClass}"></i>
-                            </a>
-                        `;
-                        lista.appendChild(itemDiv);
-                    }
-                });
-            } catch (err) {
-                document.getElementById('loading').innerText = "Erro ao carregar os anunciantes.";
-            }
+            const res = await fetch(`${SCRIPT_URL}?aba=Anunciantes&t=${Date.now()}`);
+            const dados = await res.json();
+            const lista = document.getElementById('feed-lista');
+            
+            lista.innerHTML = dados.map(item => {
+                if (!item.arte) return '';
+                return `
+                    <div class="feed-item">
+                        <img src="${item.arte}" alt="Anúncio" draggable="false">
+                        <a href="${item.link}" class="btn-contato" target="_blank">
+                            Falar com o Anunciante <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </div>`;
+            }).join('');
         }
-        window.onload = carregar;
+        carregar();
     </script>
 </body>
 </html>
