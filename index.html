@@ -6,17 +6,21 @@
     <title>Anunciantes - Rádio TV Nova Cotia</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Reset total para evitar travamentos de scroll */
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        /* Reset e Travas de Scroll */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+        }
         
         html, body { 
             width: 100%;
-            height: auto;
-            min-height: 100%;
+            height: 100%;
             background: #ffffff;
             font-family: 'Segoe UI', sans-serif;
-            /* Força o scroll natural do sistema */
-            overflow-y: auto;
+            overflow-x: hidden;
+            /* Melhora o deslize no mobile */
             -webkit-overflow-scrolling: touch;
         }
 
@@ -25,7 +29,7 @@
             padding: 20px 10px; 
             width: 100%; 
             background: #001a33;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         header h1 { 
             color: #ffffff; 
@@ -35,18 +39,17 @@
             letter-spacing: 2px; 
         }
 
-        /* Container do Feed - Sem travas de altura */
         .feed-vertical { 
-            display: block; /* Mudado para block para garantir fluxo vertical simples */
+            display: block; 
             width: 100%; 
             max-width: 480px; 
             margin: 0 auto;
-            padding: 0 15px 60px 15px; /* Espaço extra no final para não cortar o último */
+            padding: 0 15px 80px 15px;
         }
 
         .feed-item {
             width: 100%;
-            margin-bottom: 35px; /* Espaçamento entre os blocos */
+            margin-bottom: 30px;
             display: flex;
             flex-direction: column;
             border-radius: 12px;
@@ -54,15 +57,22 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             border: 1px solid #f0f0f0;
             background: #fff;
+            /* Trava o movimento apenas para o eixo vertical (Y) */
+            touch-action: pan-y;
         }
 
-        /* Imagem liberada para toque e arraste */
+        /* TRAVA DA IMAGEM: Impede que ela se mova sozinha */
         .feed-item img { 
             width: 100%; 
             height: auto;
             display: block;
-            user-select: none;
+            /* Impede o navegador de "selecionar" ou "arrastar" a imagem */
+            pointer-events: none; 
             -webkit-user-drag: none;
+            user-select: none;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
         }
 
         .btn-contato {
@@ -78,6 +88,8 @@
             text-decoration: none;
             text-transform: uppercase;
             border: none;
+            /* Garante que o botão seja clicável mesmo com a imagem travada */
+            pointer-events: auto;
         }
 
         .btn-contato i { margin-left: 10px; font-size: 20px; }
@@ -98,7 +110,6 @@
 
         async function carregar() {
             try {
-                // Adicionado cache-busting para sempre vir a última versão da planilha
                 const response = await fetch(`${SCRIPT_URL}?aba=Anunciantes&t=${new Date().getTime()}`);
                 const dados = await response.json();
                 
@@ -113,11 +124,11 @@
                         const linkDestino = (item.link && item.link.includes('http')) ? item.link : "#";
                         const iconClass = linkDestino.includes('wa.me') || linkDestino.includes('api.whatsapp') ? 'fab fa-whatsapp' : 'fas fa-external-link-alt';
                         
-                        // Estrutura simplificada para evitar "engasgos" no mobile
+                        // Criando o elemento com travas de arrasto nativo
                         const itemDiv = document.createElement('div');
                         itemDiv.className = 'feed-item';
                         itemDiv.innerHTML = `
-                            <img src="${item.arte}" alt="Anúncio">
+                            <img src="${item.arte}" alt="Anúncio" draggable="false">
                             <a href="${linkDestino}" class="btn-contato" target="_blank">
                                 Falar com o Anunciante <i class="${iconClass}"></i>
                             </a>
