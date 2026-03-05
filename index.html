@@ -3,31 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Painel de Destaque - Rádio</title>
+    <title>Guia Comercial - Rádio TV Nova Cotia</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* Reset e scroll natural */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
             font-family: 'Segoe UI', sans-serif; 
             background: #ffffff; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
+            display: block; /* Mudado de flex para block para scroll mais fluido */
             overflow-x: hidden;
             padding-bottom: 50px;
         }
         
-        header { text-align: center; padding: 25px 10px; width: 100%; border-bottom: 1px solid #f0f0f0; margin-bottom: 20px; }
-        header h1 { color: #001a33; font-size: 20px; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; }
+        header { 
+            text-align: center; 
+            padding: 25px 10px; 
+            width: 100%; 
+            background: #001a33; /* Azul da rádio para combinar com o site principal */
+            margin-bottom: 20px; 
+        }
+        header h1 { color: #ffffff; font-size: 20px; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; }
 
-        /* FEED VERTICAL (UM EMBAIXO DO OUTRO) */
+        /* Frase Estratégica do Guia */
+        .intro-text {
+            text-align: center;
+            padding: 0 20px;
+            margin-bottom: 30px;
+            color: #333;
+            line-height: 1.5;
+        }
+        .intro-text b { color: #001a33; }
+
+        /* FEED VERTICAL - AJUSTADO PARA SLIDE NATURAL */
         .feed-vertical { 
             display: flex;
-            flex-direction: column; /* Força a descida vertical */
+            flex-direction: column;
             width: 100%; 
-            max-width: 500px; /* Limite para não esticar demais em tablets */
-            gap: 35px; /* Espaço elegante entre os anúncios */
+            max-width: 500px; 
+            margin: 0 auto; /* Centraliza o feed */
+            gap: 40px; 
             padding: 0 15px;
         }
 
@@ -38,28 +54,29 @@
             text-decoration: none;
             border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             border: 1px solid #eee;
             transition: transform 0.2s;
+            background: #fff;
         }
 
-        /* Efeito de Clique */
         .feed-item:active { transform: scale(0.98); }
 
+        /* CORREÇÃO DA IMAGEM: Agora ela permite o scroll natural */
         .feed-item img { 
             width: 100%; 
             height: auto;
             display: block;
-            pointer-events: none; 
-            -webkit-user-drag: none;
+            /* pointer-events: none; REMOVIDO para não travar o toque */
             user-select: none;
+            -webkit-user-drag: none;
         }
 
         .btn-contato {
             width: 100%;
             background: #25d366; 
             color: white;
-            padding: 16px;
+            padding: 18px;
             font-weight: bold;
             font-size: 16px;
             display: flex;
@@ -72,12 +89,17 @@
 
         .btn-contato i { margin-left: 10px; font-size: 20px; }
 
-        #loading { color: #999; margin-top: 50px; font-weight: bold; }
+        #loading { text-align: center; color: #999; margin-top: 50px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <header><h1>Painel de Anunciantes</h1></header>
+    <header><h1>Guia Comercial</h1></header>
+
+    <div class="intro-text">
+        <p><b>Descubra as empresas que movem a cidade.</b></p>
+        <p>Veja o nosso <b>Guia Comercial da Cidade</b> e encontre o que você precisa.</p>
+    </div>
 
     <div id="loading">Carregando oportunidades...</div>
     
@@ -92,26 +114,27 @@
                 const dados = await response.json();
                 
                 const lista = document.getElementById('feed-lista');
-                document.getElementById('loading').style.display = 'none';
+                const loading = document.getElementById('loading');
+                if(loading) loading.style.display = 'none';
+                
                 lista.innerHTML = "";
 
                 dados.forEach(item => {
                     if (item.arte && item.arte.trim() !== "") {
-                        // Se o link for WhatsApp, usamos o ícone do Whats, se não, um ícone de link
-                        const linkWhatsapp = (item.link && item.link.includes('http')) ? item.link : "#";
-                        const iconClass = linkWhatsapp.includes('wa.me') || linkWhatsapp.includes('api.whatsapp') ? 'fab fa-whatsapp' : 'fas fa-external-link-alt';
+                        const linkDestino = (item.link && item.link.includes('http')) ? item.link : "#";
+                        const iconClass = linkDestino.includes('wa.me') || linkDestino.includes('api.whatsapp') ? 'fab fa-whatsapp' : 'fas fa-external-link-alt';
                         
                         lista.innerHTML += `
                             <div class="feed-item">
                                 <img src="${item.arte}" alt="Anúncio">
-                                <a href="${linkWhatsapp}" class="btn-contato" target="_blank">
+                                <a href="${linkDestino}" class="btn-contato" target="_blank">
                                     Falar com o Anunciante <i class="${iconClass}"></i>
                                 </a>
                             </div>`;
                     }
                 });
             } catch (err) {
-                document.getElementById('loading').innerText = "Erro ao carregar os anúncios.";
+                document.getElementById('loading').innerText = "Erro ao carregar o guia.";
             }
         }
         window.onload = carregar;
