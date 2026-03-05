@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Anunciantes - Rádio TV Nova Cotia</title>
+    <title>Anunciantes</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -11,36 +11,47 @@
         body { 
             background: #ffffff;
             font-family: 'Segoe UI', sans-serif;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch; /* Scroll suave no iOS */
+            /* Travamos o corpo para ele não rolar */
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         header { 
-            text-align: center; padding: 20px 10px; background: #001a33; margin-bottom: 25px;
+            flex-shrink: 0; /* O cabeçalho nunca encolhe */
+            text-align: center; 
+            padding: 20px 10px; 
+            background: #001a33; 
+            z-index: 10;
         }
-        header h1 { color: #ffffff; font-size: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        header h1 { color: #ffffff; font-size: 20px; text-transform: uppercase; }
 
+        /* A área do feed agora tem scroll próprio e fixo */
         .feed-vertical { 
-            display: block; width: 100%; max-width: 480px; margin: 0 auto; padding: 0 15px 50px 15px;
+            flex-grow: 1; /* Ocupa todo o espaço restante */
+            overflow-y: auto; /* O scroll acontece APENAS aqui dentro */
+            -webkit-overflow-scrolling: touch;
+            width: 100%; 
+            max-width: 480px; 
+            margin: 0 auto; 
+            padding: 20px 15px;
         }
 
         .feed-item {
             width: 100%;
             margin-bottom: 30px;
             border-radius: 12px;
-            overflow: hidden; /* Isso mantém a imagem presa dentro do card */
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             background: #fff;
-            /* A SOLUÇÃO: Trava o toque apenas para rolagem vertical */
-            touch-action: pan-y;
         }
 
         .feed-item img { 
             width: 100%; 
             display: block;
-            pointer-events: none; /* Impede que o toque "pegue" a imagem */
+            pointer-events: none; /* Imagem travada */
             -webkit-user-drag: none;
-            user-select: none;
         }
 
         .btn-contato {
@@ -53,13 +64,13 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            text-transform: uppercase;
         }
     </style>
 </head>
 <body>
 
     <header><h1>Anunciantes</h1></header>
+
     <div id="feed-lista" class="feed-vertical"></div>
 
     <script>
@@ -74,9 +85,9 @@
                 if (!item.arte) return '';
                 return `
                     <div class="feed-item">
-                        <img src="${item.arte}" alt="Anúncio" draggable="false">
+                        <img src="${item.arte}" alt="Anúncio">
                         <a href="${item.link}" class="btn-contato" target="_blank">
-                            Falar com o Anunciante <i class="fab fa-whatsapp"></i>
+                            Falar com o Anunciante <i class="fab fa-whatsapp" style="margin-left:10px"></i>
                         </a>
                     </div>`;
             }).join('');
