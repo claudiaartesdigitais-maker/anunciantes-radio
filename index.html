@@ -3,71 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Guia Comercial - Rádio TV Nova Cotia</title>
+    <title>Anunciantes - Rádio TV Nova Cotia</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Reset e scroll natural */
+        /* Reset total para evitar travamentos de scroll */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: #ffffff; 
-            display: block; /* Mudado de flex para block para scroll mais fluido */
-            overflow-x: hidden;
-            padding-bottom: 50px;
+        html, body { 
+            width: 100%;
+            height: auto;
+            min-height: 100%;
+            background: #ffffff;
+            font-family: 'Segoe UI', sans-serif;
+            /* Força o scroll natural do sistema */
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
-        
+
         header { 
             text-align: center; 
-            padding: 25px 10px; 
+            padding: 20px 10px; 
             width: 100%; 
-            background: #001a33; /* Azul da rádio para combinar com o site principal */
-            margin-bottom: 20px; 
+            background: #001a33;
+            margin-bottom: 25px;
         }
-        header h1 { color: #ffffff; font-size: 20px; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; }
-
-        /* Frase Estratégica do Guia */
-        .intro-text {
-            text-align: center;
-            padding: 0 20px;
-            margin-bottom: 30px;
-            color: #333;
-            line-height: 1.5;
+        header h1 { 
+            color: #ffffff; 
+            font-size: 22px; 
+            text-transform: uppercase; 
+            font-weight: 800; 
+            letter-spacing: 2px; 
         }
-        .intro-text b { color: #001a33; }
 
-        /* FEED VERTICAL - AJUSTADO PARA SLIDE NATURAL */
+        /* Container do Feed - Sem travas de altura */
         .feed-vertical { 
-            display: flex;
-            flex-direction: column;
+            display: block; /* Mudado para block para garantir fluxo vertical simples */
             width: 100%; 
-            max-width: 500px; 
-            margin: 0 auto; /* Centraliza o feed */
-            gap: 40px; 
-            padding: 0 15px;
+            max-width: 480px; 
+            margin: 0 auto;
+            padding: 0 15px 60px 15px; /* Espaço extra no final para não cortar o último */
         }
 
         .feed-item {
             width: 100%;
+            margin-bottom: 35px; /* Espaçamento entre os blocos */
             display: flex;
             flex-direction: column;
-            text-decoration: none;
-            border-radius: 15px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border: 1px solid #eee;
-            transition: transform 0.2s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 1px solid #f0f0f0;
             background: #fff;
         }
 
-        .feed-item:active { transform: scale(0.98); }
-
-        /* CORREÇÃO DA IMAGEM: Agora ela permite o scroll natural */
+        /* Imagem liberada para toque e arraste */
         .feed-item img { 
             width: 100%; 
             height: auto;
             display: block;
-            /* pointer-events: none; REMOVIDO para não travar o toque */
             user-select: none;
             -webkit-user-drag: none;
         }
@@ -78,30 +71,25 @@
             color: white;
             padding: 18px;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: none;
             text-decoration: none;
             text-transform: uppercase;
+            border: none;
         }
 
         .btn-contato i { margin-left: 10px; font-size: 20px; }
 
-        #loading { text-align: center; color: #999; margin-top: 50px; font-weight: bold; }
+        #loading { text-align: center; color: #999; padding: 40px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <header><h1>Guia Comercial</h1></header>
+    <header><h1>Anunciantes</h1></header>
 
-    <div class="intro-text">
-        <p><b>Descubra as empresas que movem a cidade.</b></p>
-        <p>Veja o nosso <b>Guia Comercial da Cidade</b> e encontre o que você precisa.</p>
-    </div>
-
-    <div id="loading">Carregando oportunidades...</div>
+    <div id="loading">Carregando anúncios...</div>
     
     <div id="feed-lista" class="feed-vertical"></div>
 
@@ -110,7 +98,8 @@
 
         async function carregar() {
             try {
-                const response = await fetch(`${SCRIPT_URL}?aba=Anunciantes&t=${Date.now()}`);
+                // Adicionado cache-busting para sempre vir a última versão da planilha
+                const response = await fetch(`${SCRIPT_URL}?aba=Anunciantes&t=${new Date().getTime()}`);
                 const dados = await response.json();
                 
                 const lista = document.getElementById('feed-lista');
@@ -124,17 +113,20 @@
                         const linkDestino = (item.link && item.link.includes('http')) ? item.link : "#";
                         const iconClass = linkDestino.includes('wa.me') || linkDestino.includes('api.whatsapp') ? 'fab fa-whatsapp' : 'fas fa-external-link-alt';
                         
-                        lista.innerHTML += `
-                            <div class="feed-item">
-                                <img src="${item.arte}" alt="Anúncio">
-                                <a href="${linkDestino}" class="btn-contato" target="_blank">
-                                    Falar com o Anunciante <i class="${iconClass}"></i>
-                                </a>
-                            </div>`;
+                        // Estrutura simplificada para evitar "engasgos" no mobile
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'feed-item';
+                        itemDiv.innerHTML = `
+                            <img src="${item.arte}" alt="Anúncio">
+                            <a href="${linkDestino}" class="btn-contato" target="_blank">
+                                Falar com o Anunciante <i class="${iconClass}"></i>
+                            </a>
+                        `;
+                        lista.appendChild(itemDiv);
                     }
                 });
             } catch (err) {
-                document.getElementById('loading').innerText = "Erro ao carregar o guia.";
+                document.getElementById('loading').innerText = "Erro ao carregar os anunciantes.";
             }
         }
         window.onload = carregar;
